@@ -5,13 +5,13 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - name: Baixar código do repositório
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Instalar Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -21,32 +21,6 @@ jobs:
 
       - name: Instalar Dependências
         run: npm ci
-
-      - name: Ajustar Swift tools version para compatibilidade com Xcode 16.4
-        run: |
-          python3 -c '
-          import glob
-          for p in glob.glob("node_modules/**/Package.swift", recursive=True):
-              with open(p, "r", encoding="utf-8") as f:
-                  content = f.read()
-              modified = False
-              if "swift-tools-version: 6.2" in content:
-                  content = content.replace("swift-tools-version: 6.2", "swift-tools-version: 6.1")
-                  modified = True
-              if "602.0.0-latest" in content:
-                  content = content.replace("602.0.0-latest", "601.0.0")
-                  modified = True
-              if "NonisolatedNonsendingByDefault" in content:
-                  content = content.replace(".enableUpcomingFeature(\"NonisolatedNonsendingByDefault\"),", "// .enableUpcomingFeature(\"NonisolatedNonsendingByDefault\"),")
-                  modified = True
-              if "InferIsolatedConformances" in content:
-                  content = content.replace(".enableUpcomingFeature(\"InferIsolatedConformances\"),", "// .enableUpcomingFeature(\"InferIsolatedConformances\"),")
-                  modified = True
-              if modified:
-                  with open(p, "w", encoding="utf-8") as f:
-                      f.write(content)
-                  print(f"Ajustado com sucesso: {p}")
-          '
 
       - name: Gerar arquivos nativos iOS e instalar Pods
         run: npx expo prebuild --platform ios --clean
@@ -72,7 +46,7 @@ jobs:
           zip -r -y Moneto.ipa Payload
 
       - name: Disponibilizar Moneto.ipa para download
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: moneto-ipa
           path: Moneto.ipa
