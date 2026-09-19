@@ -25,20 +25,12 @@ jobs:
       - name: Gerar arquivos nativos iOS e instalar Pods
         run: npx expo prebuild --platform ios --clean
 
-      - name: Detectar scheme do Xcode
-        id: scheme
-        run: |
-          cd ios
-          SCHEME=$(xcodebuild -list -json | python3 -c "import sys,json; print(json.load(sys.stdin)['workspace']['schemes'][0])")
-          echo "name=$SCHEME" >> "$GITHUB_OUTPUT"
-          echo "Scheme detectado: $SCHEME"
-
       - name: Compilar App iOS sem assinatura
         run: |
           cd ios
           xcodebuild build \
-            -workspace *.xcworkspace \
-            -scheme "${{ steps.scheme.outputs.name }}" \
+            -workspace Moneto.xcworkspace \
+            -scheme Moneto \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
